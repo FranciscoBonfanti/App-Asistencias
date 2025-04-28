@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-// URL de tu Google Apps Script (publicada como Web App, acceso público)
+// URL de tu Google Apps Script (publicada como Web App)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8Tx8upOWZW7NZ-wynZp63lj9CBExwIwjAFvPk4AevdDfjetN44gAiA-odgUOZ_rXYOg/exec';
 
 export default function RegistroVisitaEscaneada() {
@@ -23,18 +23,25 @@ export default function RegistroVisitaEscaneada() {
     'Familiar'
   ];
 
-  // Dispara intento de pautada al escanear
+  //  Dispara intento de "pautada" tras escaneo de QR o barcode
   useEffect(() => {
-    if (!modoManual && input.length > 20) {
+    if (!modoManual && input.length > 10) {
       clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(handlePautada, 1000);
+      timeoutRef.current = setTimeout(handlePautada, 800);
     }
   }, [input, modoManual]);
 
   // 1) Intento de visita pautada
   async function handlePautada() {
-    const dni = modoManual ? input.trim() : parseDNI(input);
-    const nombre = modoManual ? manualNombre.trim() : parseNombre(input);
+    // parseamos
+    let dni, nombre, motivo;
+    if (modoManual) {
+      dni = input.trim();
+      nombre = manualNombre.trim();
+      motivo = '';
+    } else {
+      ({ dni, nombre, motivo } = parseInput(input));
+    }
 
     if (!dni) {
       setMensaje('❌ No se pudo extraer el DNI.');
@@ -48,7 +55,7 @@ export default function RegistroVisitaEscaneada() {
     setLoading(true);
     setMensaje('');
     setPendingDni(dni);
-    setPendingNombre(nombre);
+    setPendingNombre(nombre || '');
 
     try {
       const res = await fetch(SCRIPT_URL, {
@@ -57,16 +64,17 @@ export default function RegistroVisitaEscaneada() {
         body: new URLSearchParams({
           tipo: 'visita',
           subtipo: 'pautada',
-          nombre,
+          nombre: nombre || '',
           dni,
-          motivo: ''
+          motivo: '' // forzamos al servidor a usar su motivo de Pautados
         })
       });
       const data = await res.json();
 
       if (data.success) {
-        // Muestro también el motivo traído de Pautados
-        setMensaje(`✅ ${data.mensaje} (${data.motivo}) a las ${data.hora}`);
+        setMensaje(
+          `✅ ${data.mensaje}: ${data.nombre} (${data.motivo}) a las ${data.hora}`
+        );
       } else if (data.necesitaMotivo) {
         setMostrarPopup(true);
       } else {
@@ -81,7 +89,7 @@ export default function RegistroVisitaEscaneada() {
     }
   }
 
-  // 2) Registro de visita común tras elegir motivo
+  // 2) Si el servidor pide motivo, registramos como visita común
   async function handleComun(motivo) {
     setMostrarPopup(false);
     setLoading(true);
@@ -112,16 +120,47 @@ export default function RegistroVisitaEscaneada() {
     }
   }
 
-  // Helpers para parsear scan
-  function parseDNI(raw) {
-    const esc = raw.match(/"M"(\d{7,8})"/);
-    if (esc) return esc[1];
-    const man = raw.trim().match(/^(\d{7,8})$/);
-    return man ? man[1] : null;
-  }
-  function parseNombre(raw) {
-    const parts = raw.split('"');
-    return [parts[1], parts[2]].filter(Boolean).join(' ').trim();
+  // ------ PARSER ------ 
+  function parseInput(raw) {
+    // 1) si viene URL de QR, sacamos payload después de "data="
+    let payload = raw;
+    const idx = raw.indexOf('data=');
+    if (idx !== -1) {
+      payload = raw.slice(idx + 5);
+    }
+
+    // 2) intento extraer barcode tipo "M"44025563" u otros 7-8 dígitos
+    let mBar = payload.match(/"M"?(\d{7,8})/);
+    if (!mBar) mBar = payload.match(/\b(\d{7,8})\b/);
+    if (mBar && payload.includes('"M"')) {
+      return { dni: mBar[1], nombre: '', motivo: '' };
+    }
+
+    // 3) si llegamos aquí, asumimos QR estilo:
+    //    [16 caracteres fecha/hora] [NombreApellido][DNI][Motivo][...]
+    //    Fecha/hora ocupa siempre 16 chars: "dd/MM/yyyy HH:mm"
+    if (payload.length < 20) {
+      return { dni: null, nombre: '', motivo: '' };
+    }
+    // cortamos la parte inicial de 16 chars:
+    const afterDate = payload.slice(16);
+    // Regex para: nombre+apellido (todo NO-dígito), luego DNI 7-8 dígitos, luego resto
+    const m = afterDate.match(/^([^\d]+?)(\d{7,8})(.+)$/);
+    if (!m) {
+      return { dni: null, nombre: '', motivo: '' };
+    }
+    let [ , nameRaw, dni, rest ] = m;
+    // insertamos espacio entre palabra y mayúsculas:
+    const nombre = nameRaw
+      .replace(/([a-záéíóúñ])([A-ZÁÉÍÓÚÑ])/g, '$1 $2')
+      .trim();
+    // en 'rest' arrancamos con motivo hasta antes de la próxima fecha
+    const fechaPos = rest.search(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/);
+    const motivo = fechaPos > -1
+      ? rest.slice(0, fechaPos).trim()
+      : rest.trim();
+
+    return { dni, nombre, motivo };
   }
 
   return (
@@ -155,7 +194,11 @@ export default function RegistroVisitaEscaneada() {
 
       <input
         className="input"
-        placeholder={modoManual ? 'Ingresá el DNI a mano' : 'Escaneá el código del DNI'}
+        placeholder={
+          modoManual
+            ? 'Ingresá el DNI a mano'
+            : 'Escaneá el código de barras o QR'
+        }
         value={input}
         onChange={e => setInput(e.target.value)}
         disabled={loading}
@@ -175,7 +218,7 @@ export default function RegistroVisitaEscaneada() {
         </button>
       )}
 
-      <p className={mensaje.includes('✅') ? 'success' : 'error'}>
+      <p className={mensaje.startsWith('✅') ? 'success' : 'error'}>
         {mensaje}
       </p>
 
