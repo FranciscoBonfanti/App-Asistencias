@@ -32,7 +32,7 @@ function RegistroAsistencia() {
 
     try {
       const res = await fetch(
-        "https://script.google.com/macros/s/AKfycbynpRBhFHSITLYQoDyBv5BaI3tQanJ9n2gCjDhMRhFl179hj4aW5MhuyJcaTb7tcoClbg/exec",
+        "https://script.google.com/macros/s/AKfycby8Tx8upOWZW7NZ-wynZp63lj9CBExwIwjAFvPk4AevdDfjetN44gAiA-odgUOZ_rXYOg/exec",
         {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },

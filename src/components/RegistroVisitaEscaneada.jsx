@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 // URL de tu Google Apps Script (publicada como Web App, acceso público)
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbynpRBhFHSITLYQoDyBv5BaI3tQanJ9n2gCjDhMRhFl179hj4aW5MhuyJcaTb7tcoClbg/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8Tx8upOWZW7NZ-wynZp63lj9CBExwIwjAFvPk4AevdDfjetN44gAiA-odgUOZ_rXYOg/exec';
 
 export default function RegistroVisitaEscaneada() {
   const [input, setInput] = useState('');
