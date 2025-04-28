@@ -1,0 +1,176 @@
+/* index.css */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f7f8fa;
+  margin: 0;
+  padding: 2rem;
+  color: #333;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+.card:hover {
+  transform: scale(1.01);
+}
+
+.title,
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #1f4e79;
+}
+
+/* ----------------------------------------- */
+/* Inputs, selects                          */
+/* ----------------------------------------- */
+.input,
+select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.input:focus,
+select:focus {
+  outline: none;
+  border-color: #1f4e79;
+  box-shadow: 0 0 5px rgba(31, 78, 121, 0.2);
+}
+
+/* ----------------------------------------- */
+/* Botones de modo (Escáner / Manual)       */
+/* ----------------------------------------- */
+.mode-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.mode-buttons button {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #1f4e79;
+  background-color: white;
+  color: #1f4e79;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.mode-buttons button:not(.btn-active):hover {
+  background-color: #e8f2fa; /* azul suave al pasar el mouse */
+}
+.mode-buttons .btn-active {
+  background-color: #1f4e79; /* azul principal */
+  color: white;
+}
+
+/* ----------------------------------------- */
+/* Botones de envío y popup (Registrar, motivos) */
+/* ----------------------------------------- */
+button,
+button.submit-button,
+.motivo-opciones button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #1f4e79; /* azul principal */
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+button:hover,
+button.submit-button:hover,
+.motivo-opciones button:hover {
+  background-color: #163b5c; /* azul oscuro al hover */
+}
+button:disabled,
+button.submit-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------- */
+/* Mensajes                                 */
+/* ----------------------------------------- */
+.message {
+  text-align: center;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+.success {
+  color: #2e7d32;
+}
+.error {
+  color: #c62828;
+}
+
+/* ----------------------------------------- */
+/* Datos registrados                        */
+/* ----------------------------------------- */
+.datos {
+  margin-top: 2rem;
+  background-color: #f0f8ff;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+}
+.datos-title {
+  margin-bottom: 1rem;
+  color: #2e7d32;
+}
+.hora {
+  font-style: italic;
+  margin-top: 1rem;
+  color: #555;
+}
+
+/* ----------------------------------------- */
+/* Popup overlay & contenido                */
+/* ----------------------------------------- */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.popup {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+.motivo-opciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
