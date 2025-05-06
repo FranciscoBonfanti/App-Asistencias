@@ -16,11 +16,10 @@ export default function RegistroVisitaEscaneada() {
 
   const motivosAlternativos = [
     'Visita guiada',
+    'Contingente',
     'Prensa',
-    'Municipales',
-    'Comunales',
-    'Asesores',
-    'Familiar'
+    'Ceremonial y protocolo',
+    'Asistente Técnico'
   ];
 
   //  Dispara intento de "pautada" tras escaneo de QR o barcode
