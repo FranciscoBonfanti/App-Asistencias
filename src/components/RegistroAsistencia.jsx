@@ -64,13 +64,20 @@ function RegistroAsistencia() {
 
   // Ahora detecta cadenas tipo "M"12345678" y también solo dígitos manuales
   const parseDNI = raw => {
-    // caso manual: exactamente 7 u 8 dígitos
+    // 1. Escaneo tipo "F" o "M" seguido de DNI y luego cualquier otra cosa
+    const escaneado = raw.match(/"(?:M|F)"(\d{7,8})/);
+    if (escaneado) return escaneado[1];
+  
+    // 2. Otra opción: buscar cualquier número de 7-8 dígitos en el medio
+    const gen = raw.match(/\b(\d{7,8})\b/);
+    if (gen) return gen[1];
+  
+    // 3. Caso manual: solo números puros
     const manual = raw.trim().match(/^\d{7,8}$/);
-    if (manual) return manual[0];
-    // caso escaneo: "...\"M\"12345678\"..."
-    const escaneado = raw.match(/"M"(\d{7,8})"/);
-    return escaneado ? escaneado[1] : null;
+    return manual ? manual[0] : null;
   };
+  
+  
 
   return (
     <div className="card">
